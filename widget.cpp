@@ -17,13 +17,13 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     file_edit = new QLineEdit ("");
     QPushButton* file_button = new QPushButton ("...");
     file_combo = file_list();
-    pregap_edit = new QLineEdit ("");
-    index_edit = new QLineEdit ("");
-    postgap_edit = new QLineEdit ("");
+    index0_edit = new QLineEdit ("");
+    index1_edit = new QLineEdit ("");
+    //postgap_edit = new QLineEdit ("");
 
-    pregap_edit->setInputMask("99:99:99");
-    index_edit->setInputMask("99:99:99");
-    postgap_edit->setInputMask("99:99:99");
+    index0_edit->setInputMask("99:99:99");
+    index1_edit->setInputMask("99:99:99");
+    //postgap_edit->setInputMask("99:99:99");
 
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
 
@@ -32,12 +32,12 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     main_layout->addWidget(file_edit,1,0,1,2);
     main_layout->addWidget(file_button,1,2,1,2);
     main_layout->addWidget(file_combo,1,4,1,2);
-    main_layout->addWidget(new QLabel("Index"),2,0,1,1);
-    main_layout->addWidget(index_edit,2,1,1,1);
-    main_layout->addWidget(new QLabel("Pregap"),2,2,1,1);
-    main_layout->addWidget(pregap_edit,2,3,1,1);
-    main_layout->addWidget(new QLabel("Postgap"),2,4,1,1);
-    main_layout->addWidget(postgap_edit,2,5,1,3);
+    main_layout->addWidget(new QLabel("Index 00"),2,0,1,1);
+    main_layout->addWidget(index0_edit,2,1,1,1);
+    main_layout->addWidget(new QLabel("Index 01"),2,2,1,1);
+    main_layout->addWidget(index1_edit,2,3,1,1);
+    //main_layout->addWidget(new QLabel("Postgap"),2,4,1,1);
+    //main_layout->addWidget(postgap_edit,2,5,1,3);
     main_layout->addWidget(new QLabel("Title"),3,0,1,1);
     main_layout->addWidget(title_edit,3,1,1,1);
     main_layout->addWidget(new QLabel("Performer"),3,2,1,1);
@@ -56,9 +56,9 @@ void Widget::UpdateFromVar() {
     title_edit->setText(track.title);
     performer_edit->setText(track.performer);
     songwriter_edit->setText(track.songwriter);
-    index_edit->setText(track.index);
-    pregap_edit->setText(track.pregap);
-    postgap_edit->setText(track.postgap);
+    index0_edit->setText(track.index0);
+    index1_edit->setText(track.index1);
+    //postgap_edit->setText(track.postgap);
 }
 
 void Widget::UpdateToVar() {
@@ -68,9 +68,9 @@ void Widget::UpdateToVar() {
     track.title = title_edit->text();
     track.performer = performer_edit->text();
     track.songwriter = songwriter_edit->text();
-    track.index = index_edit->text();
-    track.pregap = pregap_edit->text();
-    track.postgap = postgap_edit->text();
+    track.index0 = index0_edit->text();
+    track.index1 = index1_edit->text();
+    //track.postgap = postgap_edit->text();
 }
 
 void Widget::SelectName() {

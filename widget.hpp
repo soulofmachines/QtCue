@@ -11,10 +11,10 @@ class Widget : public QWidget
     QComboBox *file_combo;
     QLabel* track_label;
     QLineEdit* file_edit;
-    QLineEdit* index_edit;
+    QLineEdit* index1_edit;
     QLineEdit* performer_edit;
-    QLineEdit* postgap_edit;
-    QLineEdit* pregap_edit;
+    //QLineEdit* postgap_edit;
+    QLineEdit* index0_edit;
     QLineEdit* songwriter_edit;
     QLineEdit* title_edit;
     QString track_string;

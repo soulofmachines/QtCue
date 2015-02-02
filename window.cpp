@@ -123,9 +123,10 @@ void Window::Load() {
                 ParseLast("^TITLE *", widget.back()->track.title, line, 1);
                 ParseLast("^PERFORMER *", widget.back()->track.performer, line, 1);
                 ParseLast("^SONGWRITER *", widget.back()->track.songwriter, line, 1);
-                ParseLast("^PREGAP *", widget.back()->track.pregap, line, 1);
-                ParseLast("^INDEX 01 *", widget.back()->track.index, line, 2);
-                ParseLast("^POSTGAP *", widget.back()->track.postgap, line, 1);
+                //ParseLast("^PREGAP *", widget.back()->track.pregap, line, 1);
+                ParseLast("^INDEX 00 *", widget.back()->track.index0, line, 2);
+                ParseLast("^INDEX 01 *", widget.back()->track.index1, line, 2);
+                //ParseLast("^POSTGAP *", widget.back()->track.postgap, line, 1);
                 if (line.contains(QRegExp("^TRACK *")))
                 {
                     widget.back()->UpdateFromVar();
@@ -177,11 +178,12 @@ void Window::Save(){
             file.write("    PERFORMER \"" + widget.at(x)->track.performer.toUtf8() + "\"\r\n");
         if (!widget.at(x)->track.songwriter.isEmpty())
             file.write("    SONGWRITER \"" + widget.at(x)->track.songwriter.toUtf8() + "\"\r\n");
-        if (widget.at(x)->track.pregap != "00:00:00")
-            file.write("    PREGAP " + widget.at(x)->track.pregap.toUtf8() + "\r\n");
-        file.write("    INDEX 01 " + widget.at(x)->track.index.toUtf8() + "\r\n");
-        if (widget.at(x)->track.postgap != "00:00:00")
-            file.write("    POSTGAP " + widget.at(x)->track.postgap.toUtf8() + "\r\n");
+        //if (widget.at(x)->track.pregap != "00:00:00")
+        //    file.write("    PREGAP " + widget.at(x)->track.pregap.toUtf8() + "\r\n");
+        file.write("    INDEX 00 " + widget.at(x)->track.index0.toUtf8() + "\r\n");
+        file.write("    INDEX 01 " + widget.at(x)->track.index1.toUtf8() + "\r\n");
+        //if (widget.at(x)->track.postgap != "00:00:00")
+        //    file.write("    POSTGAP " + widget.at(x)->track.postgap.toUtf8() + "\r\n");
     }
     file.close();
 }
