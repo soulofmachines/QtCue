@@ -34,30 +34,45 @@ QString GetFileName() {
     return file_name.mid(begin+1);
 }
 
-QString ParseMiddle(QString line, int begin) {
+void ParseMiddle(QString expstr, QString &var, QString line, int begin) {
+    QRegExp regexp;
     QStringList list;
-    list = line.split(" ",QString::SkipEmptyParts);
-    line = list.at(begin);
-    for (int x = begin+1; x < list.size()-1; ++x)
-        line += " " + list.at(x);
-    list = line.split("\"",QString::SkipEmptyParts);
-    return list.at(0);
+    regexp.setPattern(expstr);
+    if (line.contains(regexp))
+    {
+        list = line.split(" ",QString::SkipEmptyParts);
+        line = list.at(begin);
+        for (int x = begin+1; x < list.size()-1; ++x)
+            line += " " + list.at(x);
+        list = line.split("\"",QString::SkipEmptyParts);
+        var = list.at(0);
+    }
 }
 
-QString ParseLast(QString line) {
+void ParseLast(QString expstr, QString &var, QString line) {
+    QRegExp regexp;
     QStringList list;
-    list = line.split(" ",QString::SkipEmptyParts);
-    line = list.back();
-    list = line.split("\"",QString::SkipEmptyParts);
-    return list.at(0);
+    regexp.setPattern(expstr);
+    if (line.contains(regexp))
+    {
+        list = line.split(" ",QString::SkipEmptyParts);
+        line = list.back();
+        list = line.split("\"",QString::SkipEmptyParts);
+        var = list.at(0);
+    }
 }
 
-QString ParseLast(QString line, int begin) {
+void ParseLast(QString expstr, QString &var, QString line, int begin) {
+    QRegExp regexp;
     QStringList list;
-    list = line.split(" ",QString::SkipEmptyParts);
-    line = list.at(begin);
-    for (int x = begin+1; x < list.size(); ++x)
-        line += " " + list.at(x);
-    list = line.split("\"",QString::SkipEmptyParts);
-    return list.at(0);
+    regexp.setPattern(expstr);
+    if (line.contains(regexp))
+    {
+        list = line.split(" ",QString::SkipEmptyParts);
+        line = list.at(begin);
+        for (int x = begin+1; x < list.size(); ++x)
+            line += " " + list.at(x);
+        list = line.split("\"",QString::SkipEmptyParts);
+        var = list.at(0);
+    }
 }

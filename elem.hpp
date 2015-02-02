@@ -7,8 +7,8 @@ QComboBox *file_list();
 QComboBox *track_list();
 QComboBox *genre_list();
 QString GetFileName();
-QString ParseMiddle(QString line, int begin = 1);
-QString ParseLast(QString line);
-QString ParseLast(QString line, int begin);
+void ParseMiddle(QString expstr, QString &var, QString line, int begin = 1);
+void ParseLast(QString expstr, QString &var, QString line);
+void ParseLast(QString expstr, QString &var, QString line, int begin);
 
 #endif // ELEM_HPP

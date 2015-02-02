@@ -90,10 +90,8 @@ void Window::DelWidget() {
 
 void Window::Load() {
     QString line;
+    QString number;
     QTextStream stream;
-    QRegExp regexp;
-    QStringList list;
-    //int widgets = 1;
     file.setFileName(QFileDialog::getOpenFileName(this,"Load","cdda.cue","Cue sheet (*.cue)"));
     file.open(QIODevice::ReadOnly);
     if (!file.isOpen())
@@ -104,163 +102,37 @@ void Window::Load() {
     while (!stream.atEnd())
     {
         line = stream.readLine().trimmed();
-        regexp.setPattern("^FILE *");
-        if (line.contains(regexp))
-        {
-            file_name = ParseMiddle(line);
-            file_mode = ParseLast(line);
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            file_name = list.at(1);
-            for (int x = 2; x < list.size()-1; ++x)
-                file_name += " " + list.at(x);
-            file_mode = list.back();
-            list = file_name.split("\"",QString::SkipEmptyParts);
-            file_name = list.at(0);*/
-        }
-        regexp.setPattern("^TITLE *");
-        if (line.contains(regexp))
-        {
-            title = ParseLast(line,1);
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            title = list.at(1);
-            for (int x = 2; x < list.size(); ++x)
-                title += " " + list.at(x);
-            list = title.split("\"",QString::SkipEmptyParts);
-            title = list.at(0);*/
-        }
-        regexp.setPattern("^PERFORMER *");
-        if (line.contains(regexp))
-        {
-            performer = ParseLast(line,1);
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            performer = list.at(1);
-            for (int x = 2; x < list.size(); ++x)
-               performer += " " + list.at(x);
-            list = performer.split("\"",QString::SkipEmptyParts);
-            performer = list.at(0);*/
-        }
-        regexp.setPattern("^SONGWRITER *");
-        if (line.contains(regexp))
-        {
-            songwriter = ParseLast(line,1);
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            songwriter = list.at(1);
-            for (int x = 2; x < list.size(); ++x)
-                songwriter += " " + list.at(x);
-            list = songwriter.split("\"",QString::SkipEmptyParts);
-            songwriter = list.at(0);*/
-        }
-        regexp.setPattern("^REM DATE *");
-        if (line.contains(regexp))
-        {
-            date = ParseLast(line);
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            date = list.at(2);
-            for (int x = 3; x < list.size(); ++x)
-                date += " " + list.at(x);
-            list = date.split("\"",QString::SkipEmptyParts);
-            date = list.at(0);*/
-        }
-        regexp.setPattern("^REM GENRE *");
-        if (line.contains(regexp))
-        {
-            genre = ParseLast(line);
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            genre = list.at(2);
-            for (int x = 3; x < list.size(); ++x)
-                genre += " " + list.at(x);
-            list = genre.split("\"",QString::SkipEmptyParts);
-            genre = list.at(0);*/
-        }
-        regexp.setPattern("^TRACK *");
-        if (line.contains(regexp))
+        ParseMiddle("^FILE *",file_name,line);
+        ParseLast("^FILE *",file_mode,line);
+        ParseLast("^TITLE *",title,line,1);
+        ParseLast("^PERFORMER *",performer,line,1);
+        ParseLast("^SONGWRITER *",songwriter,line,1);
+        ParseLast("^REM DATE *",date,line);
+        ParseLast("^REM GENRE *",genre,line);
+        if (line.contains(QRegExp("^TRACK *")))
         {
             AddWidget();
-            /*list = line.split(" ",QString::SkipEmptyParts);
-            widget.back()->track.number = list.at(1).toInt();
-            widget.back()->track.mode = list.at(2);*/
-            widget.back()->track.number = ParseMiddle(line).toInt();
-            widget.back()->track.mode = ParseLast(line);
+            ParseMiddle("^TRACK *", number, line);
+            widget.back()->track.number = number.toInt();
+            ParseLast("^TRACK *", widget.back()->track.mode, line);
             while (!stream.atEnd())
             {
                 line = stream.readLine().trimmed();
-                regexp.setPattern("^FILE *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.file_name = ParseMiddle(line);
-                    widget.back()->track.file_mode = ParseLast(line);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.file_name = list.at(1);
-                    for (int x = 2; x < list.size()-1; ++x)
-                        widget.back()->track.file_name += " " + list.at(x);
-                    widget.back()->track.file_mode = list.back();
-                    list = widget.back()->track.file_name.split("\"",QString::SkipEmptyParts);
-                    widget.back()->track.file_name = list.at(0);*/
-                }
-                regexp.setPattern("^TITLE *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.title = ParseLast(line,1);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.title = list.at(1);
-                    for (int x = 2; x < list.size(); ++x)
-                        widget.back()->track.title += " " + list.at(x);
-                    list = widget.back()->track.title.split("\"",QString::SkipEmptyParts);
-                    widget.back()->track.title = list.at(0);*/
-                }
-                regexp.setPattern("^PERFORMER *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.performer = ParseLast(line,1);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.performer = list.at(1);
-                    for (int x = 2; x < list.size(); ++x)
-                       widget.back()->track.performer += " " + list.at(x);
-                    list = widget.back()->track.performer.split("\"",QString::SkipEmptyParts);
-                    widget.back()->track.performer = list.at(0);*/
-                }
-                regexp.setPattern("^SONGWRITER *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.songwriter = ParseLast(line,1);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.songwriter = list.at(1);
-                    for (int x = 2; x < list.size(); ++x)
-                        widget.back()->track.songwriter += " " + list.at(x);
-                    list = widget.back()->track.songwriter.split("\"",QString::SkipEmptyParts);
-                    widget.back()->track.songwriter = list.at(0);*/
-                }
-                regexp.setPattern("^INDEX 01 *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.index = ParseLast(line,2);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.index = list.at(2);*/
-                }
-                regexp.setPattern("^PREGAP *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.pregap = ParseLast(line,1);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.pregap = list.at(1);*/
-                }
-                regexp.setPattern("^POSTGAP *");
-                if (line.contains(regexp))
-                {
-                    widget.back()->track.postgap = ParseLast(line,1);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.postgap = list.at(1);*/
-                }
-                regexp.setPattern("^TRACK *");
-                if (line.contains(regexp))
+                ParseMiddle("^FILE *", widget.back()->track.file_name, line);
+                ParseLast("^FILE *", widget.back()->track.file_mode, line);
+                ParseLast("^TITLE *", widget.back()->track.title, line, 1);
+                ParseLast("^PERFORMER *", widget.back()->track.performer, line, 1);
+                ParseLast("^SONGWRITER *", widget.back()->track.songwriter, line, 1);
+                ParseLast("^PREGAP *", widget.back()->track.pregap, line, 1);
+                ParseLast("^INDEX 01 *", widget.back()->track.index, line, 2);
+                ParseLast("^POSTGAP *", widget.back()->track.postgap, line, 1);
+                if (line.contains(QRegExp("^TRACK *")))
                 {
                     widget.back()->UpdateFromVar();
                     AddWidget();
-                    widget.back()->track.number = ParseMiddle(line).toInt();
-                    widget.back()->track.mode = ParseLast(line);
-                    /*list = line.split(" ",QString::SkipEmptyParts);
-                    widget.back()->track.number = list.at(1).toInt();
-                    widget.back()->track.mode = list.at(2);*/
+                    ParseMiddle("^TRACK *", number, line);
+                    widget.back()->track.number = number.toInt();
+                    ParseLast("^TRACK *", widget.back()->track.mode, line);
                 }
             }
             widget.back()->UpdateFromVar();
