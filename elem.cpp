@@ -33,3 +33,31 @@ QString GetFileName() {
         begin = 0;
     return file_name.mid(begin+1);
 }
+
+QString ParseMiddle(QString line, int begin) {
+    QStringList list;
+    list = line.split(" ",QString::SkipEmptyParts);
+    line = list.at(begin);
+    for (int x = begin+1; x < list.size()-1; ++x)
+        line += " " + list.at(x);
+    list = line.split("\"",QString::SkipEmptyParts);
+    return list.at(0);
+}
+
+QString ParseLast(QString line) {
+    QStringList list;
+    list = line.split(" ",QString::SkipEmptyParts);
+    line = list.back();
+    list = line.split("\"",QString::SkipEmptyParts);
+    return list.at(0);
+}
+
+QString ParseLast(QString line, int begin) {
+    QStringList list;
+    list = line.split(" ",QString::SkipEmptyParts);
+    line = list.at(begin);
+    for (int x = begin+1; x < list.size(); ++x)
+        line += " " + list.at(x);
+    list = line.split("\"",QString::SkipEmptyParts);
+    return list.at(0);
+}
