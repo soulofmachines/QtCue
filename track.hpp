@@ -6,6 +6,7 @@
 class Track {
 public:
     int number;
+    bool index0_bool;
     QString mode, file_name, file_mode, title, performer, songwriter, index0, index1;// pregap, postgap;
     Track() {
         number = 0;
@@ -17,8 +18,7 @@ public:
         songwriter = "";
         index0 = "00:00:00";
         index1 = "00:00:00";
-        //pregap = "00:00:00";
-        //postgap = "00:00:00";
+        index0_bool = false;
     }
 };
 

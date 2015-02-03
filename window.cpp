@@ -3,6 +3,9 @@
 
 Window::Window(QWidget *parent) : QWidget(parent)
 {
+    QWidget* space = new QWidget;
+    space->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
     QHBoxLayout* main_layout = new QHBoxLayout;
     QGridLayout* head_layout = new QGridLayout;
     QScrollArea* track_scroll = new QScrollArea;
@@ -53,6 +56,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
     head_layout->addWidget(date_edit,5,1,1,1);
     head_layout->addWidget(new QLabel("Genre"),5,2,1,1);
     head_layout->addWidget(genre_combo,5,3,1,1);
+    head_layout->addWidget(space, 6,0,1,4);
     main_layout->addLayout(head_layout);
     main_layout->addWidget(track_scroll);
     track_layout->addWidget(add_button);
@@ -123,10 +127,9 @@ void Window::Load() {
                 ParseLast("^TITLE *", widget.back()->track.title, line, 1);
                 ParseLast("^PERFORMER *", widget.back()->track.performer, line, 1);
                 ParseLast("^SONGWRITER *", widget.back()->track.songwriter, line, 1);
-                //ParseLast("^PREGAP *", widget.back()->track.pregap, line, 1);
-                ParseLast("^INDEX 00 *", widget.back()->track.index0, line, 2);
+                if (line.contains(QRegExp("^INDEX 00 *")))
+                    widget.back()->track.index0_bool = ParseLast("^INDEX 00 *", widget.back()->track.index0, line, 2);
                 ParseLast("^INDEX 01 *", widget.back()->track.index1, line, 2);
-                //ParseLast("^POSTGAP *", widget.back()->track.postgap, line, 1);
                 if (line.contains(QRegExp("^TRACK *")))
                 {
                     widget.back()->UpdateFromVar();
@@ -178,12 +181,9 @@ void Window::Save(){
             file.write("    PERFORMER \"" + widget.at(x)->track.performer.toUtf8() + "\"\r\n");
         if (!widget.at(x)->track.songwriter.isEmpty())
             file.write("    SONGWRITER \"" + widget.at(x)->track.songwriter.toUtf8() + "\"\r\n");
-        //if (widget.at(x)->track.pregap != "00:00:00")
-        //    file.write("    PREGAP " + widget.at(x)->track.pregap.toUtf8() + "\r\n");
+        if (widget.at(x)->track.index0_bool)
         file.write("    INDEX 00 " + widget.at(x)->track.index0.toUtf8() + "\r\n");
         file.write("    INDEX 01 " + widget.at(x)->track.index1.toUtf8() + "\r\n");
-        //if (widget.at(x)->track.postgap != "00:00:00")
-        //    file.write("    POSTGAP " + widget.at(x)->track.postgap.toUtf8() + "\r\n");
     }
     file.close();
 }

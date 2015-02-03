@@ -34,7 +34,7 @@ QString GetFileName() {
     return file_name.mid(begin+1);
 }
 
-void ParseMiddle(QString expstr, QString &var, QString line, int begin) {
+bool ParseMiddle(QString expstr, QString &var, QString line, int begin) {
     QRegExp regexp;
     QStringList list;
     regexp.setPattern(expstr);
@@ -46,10 +46,12 @@ void ParseMiddle(QString expstr, QString &var, QString line, int begin) {
             line += " " + list.at(x);
         list = line.split("\"",QString::SkipEmptyParts);
         var = list.at(0);
-    }
+        return true;
+    } else
+        return false;
 }
 
-void ParseLast(QString expstr, QString &var, QString line) {
+bool ParseLast(QString expstr, QString &var, QString line) {
     QRegExp regexp;
     QStringList list;
     regexp.setPattern(expstr);
@@ -59,10 +61,12 @@ void ParseLast(QString expstr, QString &var, QString line) {
         line = list.back();
         list = line.split("\"",QString::SkipEmptyParts);
         var = list.at(0);
-    }
+        return true;
+    } else
+        return false;
 }
 
-void ParseLast(QString expstr, QString &var, QString line, int begin) {
+bool ParseLast(QString expstr, QString &var, QString line, int begin) {
     QRegExp regexp;
     QStringList list;
     regexp.setPattern(expstr);
@@ -74,5 +78,28 @@ void ParseLast(QString expstr, QString &var, QString line, int begin) {
             line += " " + list.at(x);
         list = line.split("\"",QString::SkipEmptyParts);
         var = list.at(0);
+        return true;
+    } else
+        return false;
+}
+
+bool MMSSFF_valid(QString line) {
+    if (line.count() != 8)
+        return false;
+    QStringList list = line.split(":",QString::SkipEmptyParts);
+    if (list.size() != 3)
+        return false;
+    bool ok = true;
+    int time = 0;
+    time = list.at(0).toInt(&ok);
+    if ((ok)&&(time>=0)&&(time<=99)) {
+        time = list.at(1).toInt(&ok);
+        if ((ok)&&(time>=0)&&(time<=59)) {
+            time = list.at(2).toInt(&ok);
+            if ((ok)&&(time>=0)&&(time<=74)) {
+                return true;
+            }
+        }
     }
+    return false;
 }
