@@ -26,6 +26,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     index0_check = new QCheckBox;
     index0_check->setText("index 00");
     index0_check->setChecked(false);
+    index_label = new QLabel;
 
     index0_edit->setInputMask("99:99:99");
     index1_edit->setInputMask("99:99:99");
@@ -33,6 +34,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
     connect(index0_edit,SIGNAL(textChanged(QString)),SLOT(IndexColor()));
     connect(index1_edit,SIGNAL(textChanged(QString)),SLOT(IndexColor()));
+    connect(index0_check,SIGNAL(toggled(bool)),SLOT(IndexColor()));
 
     main_layout->addWidget(track_label,0,0,1,3);
     main_layout->addWidget(track_combo,0,3,1,3);
@@ -43,6 +45,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     main_layout->addWidget(index0_edit,2,1,1,1);
     main_layout->addWidget(new QLabel("Index 01"),2,2,1,1);
     main_layout->addWidget(index1_edit,2,3,1,1);
+    main_layout->addWidget(index_label,2,4,1,2);
     main_layout->addWidget(new QLabel("Title"),3,0,1,1);
     main_layout->addWidget(title_edit,3,1,1,1);
     main_layout->addWidget(new QLabel("Performer"),3,2,1,1);
@@ -86,8 +89,11 @@ void Widget::SelectName() {
 }
 
 void Widget::IndexColor() {
+    bool ok = true;
     QPalette warning = palette();
     warning.setColor(index0_edit->foregroundRole(), Qt::red);
+    warning.setColor(index1_edit->foregroundRole(), Qt::red);
+    warning.setColor(index0_check->foregroundRole(), Qt::red);
     if (!MMSSFF_valid(index0_edit->text()))
         index0_edit->setPalette(warning);
     else
@@ -96,4 +102,12 @@ void Widget::IndexColor() {
         index1_edit->setPalette(warning);
     else
         index1_edit->setPalette(palette());
+    if (index0_check->isChecked()) {
+        index_label->setText("PREGAP " + MMSSFF_diff(index1_edit->text(),index0_edit->text(),ok));
+        if (ok)
+            index_label->setPalette(palette());
+        else
+            index_label->setPalette(warning);
+    } else
+        index_label->setText("");
 }

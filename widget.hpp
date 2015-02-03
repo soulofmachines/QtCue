@@ -18,6 +18,7 @@ class Widget : public QWidget
     QLineEdit* title_edit;
     QString track_string;
     QCheckBox* index0_check;
+    QLabel* index_label;
 public:
     Track track;
     Widget(QWidget *parent = 0);

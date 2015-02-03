@@ -25,7 +25,6 @@ Window::Window(QWidget *parent) : QWidget(parent)
     QPushButton* add_button = new QPushButton("+");
     QPushButton* del_button = new QPushButton("-");
 
-
     file_name = "";
     file_mode = "WAVE";
     title = "";
@@ -93,9 +92,15 @@ void Window::DelWidget() {
 }
 
 void Window::Load() {
+    QString pregap = "";
     QString line;
     QString number;
     QTextStream stream;
+    QMessageBox* pregap_message = new QMessageBox("Message","",QMessageBox::Question,QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton);
+    QMessageBox* pregap_message_ok = new QMessageBox("Message","Apply Success",QMessageBox::Information,QMessageBox::Ok,QMessageBox::NoButton,QMessageBox::NoButton);
+    QMessageBox* pregap_message_nook = new QMessageBox("Message","Errors Occurred",QMessageBox::Warning,QMessageBox::Ok,QMessageBox::NoButton,QMessageBox::NoButton);
+    int pregap_answer = QMessageBox::No;
+    bool pregap_ok = false;
     file.setFileName(QFileDialog::getOpenFileName(this,"Load","cdda.cue","Cue sheet (*.cue)"));
     file.open(QIODevice::ReadOnly);
     if (!file.isOpen())
@@ -127,6 +132,7 @@ void Window::Load() {
                 ParseLast("^TITLE *", widget.back()->track.title, line, 1);
                 ParseLast("^PERFORMER *", widget.back()->track.performer, line, 1);
                 ParseLast("^SONGWRITER *", widget.back()->track.songwriter, line, 1);
+                ParseLast("^PREGAP *", pregap, line, 1);
                 if (line.contains(QRegExp("^INDEX 00 *")))
                     widget.back()->track.index0_bool = ParseLast("^INDEX 00 *", widget.back()->track.index0, line, 2);
                 ParseLast("^INDEX 01 *", widget.back()->track.index1, line, 2);
@@ -144,6 +150,18 @@ void Window::Load() {
     }
     UpdateFromVar();
     file.close();
+    if (!pregap.isEmpty()) {
+        pregap_message->setText("Found PREGAP " + pregap + "\r\nApply?");
+        pregap_answer = pregap_message->exec();
+        if (pregap_answer == QMessageBox::Yes) {
+            pregap_ok = ApplyPregap(pregap);
+            if (pregap_ok)
+                pregap_message_ok->exec();
+            else
+                pregap_message_nook->exec();
+        }
+        pregap.clear();
+    }
 }
 
 void Window::Save(){
@@ -213,4 +231,27 @@ void Window::SelectName() {
     UpdateFromVar();
 }
 
-
+bool Window::ApplyPregap(QString pregap) {
+    bool ok = true;
+    if (!MMSSFF_valid(pregap))
+        return false;
+    if (widget.at(0)->track.index1 != "00:00:00")
+        return false;
+    widget.at(0)->track.index0 = widget.at(0)->track.index1;
+    widget.at(0)->track.index1 = pregap;
+    for (int x = 1; x < widget.size(); ++x) {
+        if (!MMSSFF_valid(widget.at(x)->track.index0))
+            return false;
+        if (!MMSSFF_valid(widget.at(x)->track.index1))
+            return false;
+        widget.at(x)->track.index0 = MMSSFF_sum(widget.at(x)->track.index0, pregap, ok);
+        if (!ok)
+            return false;
+        widget.at(x)->track.index1 = MMSSFF_sum(widget.at(x)->track.index1, pregap, ok);
+        if (!ok)
+            return false;
+    }
+    for (int x = 0; x < widget.size(); ++x)
+        widget.at(x)->UpdateFromVar();
+    return true;
+}

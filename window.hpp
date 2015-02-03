@@ -34,6 +34,7 @@ public slots:
     void UpdateFromVar();
     void UpdateToVar();
     void SelectName();
+    bool ApplyPregap(QString pregap);
 };
 
 #endif // WINDOW_HPP
