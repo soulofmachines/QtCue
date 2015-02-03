@@ -6,8 +6,6 @@
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
     QGridLayout* main_layout = new QGridLayout;
-    QWidget* space = new QWidget;
-    space->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     QFrame* line = new QFrame;
     line->setFrameShape(QFrame::HLine);
 
@@ -15,7 +13,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     performer_edit= new QLineEdit ("");
     songwriter_edit= new QLineEdit ("");
     title_edit= new QLineEdit ("");
-    track_string = "Track " + QString::number(track.number);
+    track_string = "TRACK " + QString::number(track.number);
     track_label = new QLabel(track_string);
     track_combo = track_list();
     file_edit = new QLineEdit ("");
@@ -24,10 +22,11 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     index0_edit = new QLineEdit ("");
     index1_edit = new QLineEdit ("");
     index0_check = new QCheckBox;
-    index0_check->setText("index 00");
+    index0_check->setText("INDEX 00");
     index0_check->setChecked(false);
-    index_label = new QLabel;
+    pregap_label = new QLabel;
 
+    track_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     index0_edit->setInputMask("99:99:99");
     index1_edit->setInputMask("99:99:99");
 
@@ -36,29 +35,28 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     connect(index1_edit,SIGNAL(textChanged(QString)),SLOT(IndexColor()));
     connect(index0_check,SIGNAL(toggled(bool)),SLOT(IndexColor()));
 
-    main_layout->addWidget(track_label,0,0,1,3);
-    main_layout->addWidget(track_combo,0,3,1,3);
-    main_layout->addWidget(file_edit,1,0,1,2);
-    main_layout->addWidget(file_button,1,2,1,2);
-    main_layout->addWidget(file_combo,1,4,1,2);
-    main_layout->addWidget(index0_check,2,0,1,1);
-    main_layout->addWidget(index0_edit,2,1,1,1);
-    main_layout->addWidget(new QLabel("Index 01"),2,2,1,1);
-    main_layout->addWidget(index1_edit,2,3,1,1);
-    main_layout->addWidget(index_label,2,4,1,2);
-    main_layout->addWidget(new QLabel("Title"),3,0,1,1);
-    main_layout->addWidget(title_edit,3,1,1,1);
-    main_layout->addWidget(new QLabel("Performer"),3,2,1,1);
-    main_layout->addWidget(performer_edit,3,3,1,1);
-    main_layout->addWidget(new QLabel("Songwriter"),3,4,1,1);
-    main_layout->addWidget(songwriter_edit,3,5,1,1);
-    main_layout->addWidget(space,5,0,1,6);
-    main_layout->addWidget(line,4,0,1,6);
+    main_layout->addWidget(line, 0,0,1,6);
+    main_layout->addWidget(track_label,1,0,1,1);
+    main_layout->addWidget(new QLabel("FILE"),2,0,1,1);
+    main_layout->addWidget(file_edit,2,1,1,3);
+    main_layout->addWidget(file_button,2,4,1,1);
+    main_layout->addWidget(file_combo,2,5,1,1);
+    main_layout->addWidget(new QLabel("TITLE"),3,0,1,1);
+    main_layout->addWidget(title_edit,3,1,1,2);
+    main_layout->addWidget(new QLabel("PERFORMER"),4,0,1,1);
+    main_layout->addWidget(performer_edit,4,1,1,2);
+    main_layout->addWidget(new QLabel("SONGWRITER"),5,0,1,1);
+    main_layout->addWidget(songwriter_edit,5,1,1,2);
+    main_layout->addWidget(index0_check,3,3,1,1);
+    main_layout->addWidget(index0_edit,3,4,1,2);
+    main_layout->addWidget(new QLabel("INDEX 01"),4,3,1,1);
+    main_layout->addWidget(index1_edit,4,4,1,2);
+    main_layout->addWidget(pregap_label,5,3,1,3);
     setLayout(main_layout);
 }
 
 void Widget::UpdateFromVar() {
-    track_string = "Track " + QString::number(track.number);
+    track_string = "TRACK " + QString::number(track.number);
     track_label->setText(track_string);
     track_combo->setCurrentIndex(track_combo->findText(track.mode,Qt::MatchFixedString));
     file_edit->setText(track.file_name);
@@ -103,11 +101,11 @@ void Widget::IndexColor() {
     else
         index1_edit->setPalette(palette());
     if (index0_check->isChecked()) {
-        index_label->setText("PREGAP " + MMSSFF_diff(index1_edit->text(),index0_edit->text(),ok));
+        pregap_label->setText("PREGAP " + MMSSFF_diff(index1_edit->text(),index0_edit->text(),ok));
         if (ok)
-            index_label->setPalette(palette());
+            pregap_label->setPalette(palette());
         else
-            index_label->setPalette(warning);
+            pregap_label->setPalette(warning);
     } else
-        index_label->setText("");
+        pregap_label->setText("");
 }

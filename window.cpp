@@ -3,27 +3,40 @@
 
 Window::Window(QWidget *parent) : QWidget(parent)
 {
-    QWidget* space = new QWidget;
-    space->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    QWidget* space_left = new QWidget;
+    space_left->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    QWidget* space_right = new QWidget;
+    space_right->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    QHBoxLayout* main_layout = new QHBoxLayout;
-    QGridLayout* head_layout = new QGridLayout;
+    QHBoxLayout* window_layout = new QHBoxLayout;
+    QGridLayout* left_layout = new QGridLayout;
+    QVBoxLayout* right_layout = new QVBoxLayout;
+    QVBoxLayout* track_box = new QVBoxLayout;
+    QGridLayout* adddel_layout = new QGridLayout;
     QScrollArea* track_scroll = new QScrollArea;
     QWidget* track_widget = new QWidget;
-    track_layout = new QVBoxLayout;
 
-    file_edit = new QLineEdit ("");
-    performer_edit = new QLineEdit ("");
-    title_edit = new QLineEdit ("");
-    songwriter_edit = new QLineEdit ("");
-    date_edit = new QLineEdit ("");
+    track_scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    track_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    track_scroll->setWidgetResizable(true);
+
     QPushButton* load_button = new QPushButton("Load");
     QPushButton* save_button = new QPushButton("Save");
     QPushButton* file_button = new QPushButton ("...");
-    file_combo = file_list();
-    genre_combo = genre_list();
     QPushButton* add_button = new QPushButton("+");
     QPushButton* del_button = new QPushButton("-");
+
+    track_layout = new QVBoxLayout;
+
+    file_edit = new QLineEdit ("");
+    file_combo = file_list();
+    title_edit = new QLineEdit ("");
+    performer_edit = new QLineEdit ("");
+    songwriter_edit = new QLineEdit ("");
+    date_edit = new QLineEdit ("");
+    genre_combo = genre_list();
+
+    date_edit->setInputMask("9999");
 
     file_name = "";
     file_mode = "WAVE";
@@ -33,44 +46,48 @@ Window::Window(QWidget *parent) : QWidget(parent)
     date = "0000";
     genre = "";
 
-    date_edit->setInputMask("9999");
     connect(save_button,SIGNAL(clicked()),SLOT(Save()));
     connect(load_button,SIGNAL(clicked()),SLOT(Load()));
     connect(add_button,SIGNAL(clicked()),SLOT(AddWidget()));
     connect(del_button,SIGNAL(clicked()),SLOT(DelWidget()));
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
 
-    head_layout->addWidget(load_button,0,0,1,2);
-    head_layout->addWidget(save_button,0,2,1,2);
-    head_layout->addWidget(file_edit,1,0,1,2);
-    head_layout->addWidget(file_button,1,2,1,1);
-    head_layout->addWidget(file_combo,1,3,1,1);
-    head_layout->addWidget(new QLabel("Performer"),2,0,1,1);
-    head_layout->addWidget(performer_edit,2,1,1,3);
-    head_layout->addWidget(new QLabel("Title"),3,0,1,1);
-    head_layout->addWidget(title_edit,3,1,1,3);
-    head_layout->addWidget(new QLabel("Songwriter"),4,0,1,1);
-    head_layout->addWidget(songwriter_edit,4,1,1,3);
-    head_layout->addWidget(new QLabel("Date"),5,0,1,1);
-    head_layout->addWidget(date_edit,5,1,1,1);
-    head_layout->addWidget(new QLabel("Genre"),5,2,1,1);
-    head_layout->addWidget(genre_combo,5,3,1,1);
-    head_layout->addWidget(space, 6,0,1,4);
-    main_layout->addLayout(head_layout);
-    main_layout->addWidget(track_scroll);
-    track_layout->addWidget(add_button);
-    track_layout->addWidget(del_button);
-    track_widget->setLayout(track_layout);
-    track_scroll->setWidget(track_widget);
+    left_layout->addWidget(load_button,0,0,1,3);
+    left_layout->addWidget(save_button,0,3,1,3);
+    left_layout->addWidget(new QLabel("FILE"),1,0,1,1);
+    left_layout->addWidget(file_edit,1,1,1,3);
+    left_layout->addWidget(file_button,1,4,1,1);
+    left_layout->addWidget(file_combo,1,5,1,1);
+    left_layout->addWidget(new QLabel("TITLE"),2,0,1,1);
+    left_layout->addWidget(title_edit,2,1,1,5);
+    left_layout->addWidget(new QLabel("PERFORMER"),3,0,1,1);
+    left_layout->addWidget(performer_edit,3,1,1,5);
+    left_layout->addWidget(new QLabel("SONGWRITER"),4,0,1,1);
+    left_layout->addWidget(songwriter_edit,4,1,1,5);
+    left_layout->addWidget(new QLabel("DATE"),5,0,1,1);
+    left_layout->addWidget(date_edit,5,1,1,1);
+    left_layout->addWidget(new QLabel("GENRE"),5,3,1,1);
+    left_layout->addWidget(genre_combo,5,4,1,2);
+    left_layout->addWidget(space_left,6,0,1,6);
 
-    track_scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    track_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    track_scroll->setWidgetResizable(true);
+    adddel_layout->addWidget(add_button);
+    adddel_layout->addWidget(del_button);
+
+    track_box->addLayout(track_layout);
+    track_box->addWidget(space_right);
+    track_widget->setLayout(track_box);
+    track_scroll->setWidget(track_widget);
+    right_layout->addLayout(adddel_layout);
+    right_layout->addWidget(track_scroll);
+
+    window_layout->addLayout(left_layout);
+    window_layout->addLayout(right_layout);
 
     AddWidget();
     UpdateFromVar();
+    track_scroll->setMinimumWidth(QApplication::desktop()->screenGeometry().width()*0.25);
     setFixedHeight(QApplication::desktop()->screenGeometry().height()*0.8);
-    setLayout(main_layout);
+    setLayout(window_layout);
 }
 
 void Window::AddWidget() {
