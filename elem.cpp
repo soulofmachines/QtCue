@@ -19,7 +19,22 @@ QComboBox *track_list() {
 }
 
 QComboBox *genre_list() {
-    QStringList string = QStringList() << "" << "GENRE1" << "GENRE2" << "GENRE3";
+    QStringList string = QStringList() << ""
+                                       << "Blues"
+                                       << "Classical"
+                                       << "Country"
+                                       << "Electronic"
+                                       << "Folk"
+                                       << "Funk"
+                                       << "Hip-Hop"
+                                       << "Jazz"
+                                       << "Latin"
+                                       << "New-Age"
+                                       << "Pop"
+                                       << "R&B"
+                                       << "Reggae"
+                                       << "Rock"
+                                       << "Soundtrack";
     QComboBox* combo = new QComboBox();
     combo->addItems(string);
     combo->setEditable(true);
