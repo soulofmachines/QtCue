@@ -16,7 +16,9 @@ class Window : public QWidget
     QLineEdit* performer_edit;
     QLineEdit* title_edit;
     QLineEdit* songwriter_edit;
+    QLineEdit* catalog_edit;
     QLineEdit* date_edit;
+    QString catalog;
     QString file_name;
     QString file_mode;
     QString title;
@@ -24,6 +26,8 @@ class Window : public QWidget
     QString songwriter;
     QString date;
     QString genre;
+    QPalette warning;
+
 public:
     Window(QWidget *parent = 0);
 public slots:
@@ -34,6 +38,7 @@ public slots:
     void UpdateFromVar();
     void UpdateToVar();
     void SelectName();
+    void InputColor();
     bool ApplyPregap(QString pregap);
 };
 

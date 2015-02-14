@@ -19,6 +19,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     file_edit = new QLineEdit ("");
     QPushButton* file_button = new QPushButton ("...");
     file_combo = file_list();
+    isrc_edit = new QLineEdit ("");
     index0_edit = new QLineEdit ("");
     index1_edit = new QLineEdit ("");
     index0_check = new QCheckBox;
@@ -26,17 +27,26 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     index0_check->setChecked(false);
     pregap_label = new QLabel;
 
-    track_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    isrc_edit->setInputMask(">NNNNN9999999");
     index0_edit->setInputMask("99:99:99");
     index1_edit->setInputMask("99:99:99");
 
+    warning = palette();
+    warning.setColor(isrc_edit->foregroundRole(), Qt::red);
+    warning.setColor(index0_edit->foregroundRole(), Qt::red);
+    warning.setColor(index1_edit->foregroundRole(), Qt::red);
+    warning.setColor(index0_check->foregroundRole(), Qt::red);
+
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
-    connect(index0_edit,SIGNAL(textChanged(QString)),SLOT(IndexColor()));
-    connect(index1_edit,SIGNAL(textChanged(QString)),SLOT(IndexColor()));
-    connect(index0_check,SIGNAL(toggled(bool)),SLOT(IndexColor()));
+    connect(isrc_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
+    connect(index0_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
+    connect(index1_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
+    connect(index0_check,SIGNAL(toggled(bool)),SLOT(InputColor()));
 
     main_layout->addWidget(line, 0,0,1,6);
-    main_layout->addWidget(track_label,1,0,1,1);
+    main_layout->addWidget(track_label,1,0,1,6);
     main_layout->addWidget(new QLabel("FILE"),2,0,1,1);
     main_layout->addWidget(file_edit,2,1,1,3);
     main_layout->addWidget(file_button,2,4,1,1);
@@ -47,6 +57,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     main_layout->addWidget(performer_edit,4,1,1,2);
     main_layout->addWidget(new QLabel("SONGWRITER"),5,0,1,1);
     main_layout->addWidget(songwriter_edit,5,1,1,2);
+    main_layout->addWidget(new QLabel("ISRC"),6,0,1,1);
+    main_layout->addWidget(isrc_edit,6,1,1,5);
     main_layout->addWidget(index0_check,3,3,1,1);
     main_layout->addWidget(index0_edit,3,4,1,2);
     main_layout->addWidget(new QLabel("INDEX 01"),4,3,1,1);
@@ -64,6 +76,7 @@ void Widget::UpdateFromVar() {
     title_edit->setText(track.title);
     performer_edit->setText(track.performer);
     songwriter_edit->setText(track.songwriter);
+    isrc_edit->setText(track.isrc);
     index0_check->setChecked(track.index0_bool);
     index0_edit->setText(track.index0);
     index1_edit->setText(track.index1);
@@ -76,6 +89,7 @@ void Widget::UpdateToVar() {
     track.title = title_edit->text();
     track.performer = performer_edit->text();
     track.songwriter = songwriter_edit->text();
+    track.isrc = isrc_edit->text();
     track.index0_bool = index0_check->isChecked();
     track.index0 = index0_edit->text();
     track.index1 = index1_edit->text();
@@ -86,12 +100,12 @@ void Widget::SelectName() {
     UpdateFromVar();
 }
 
-void Widget::IndexColor() {
+void Widget::InputColor() {
     bool ok = true;
-    QPalette warning = palette();
-    warning.setColor(index0_edit->foregroundRole(), Qt::red);
-    warning.setColor(index1_edit->foregroundRole(), Qt::red);
-    warning.setColor(index0_check->foregroundRole(), Qt::red);
+    if (isrc_edit->hasAcceptableInput())
+        isrc_edit->setPalette(palette());
+    else
+        isrc_edit->setPalette(warning);
     if (!MMSSFF_valid(index0_edit->text()))
         index0_edit->setPalette(warning);
     else

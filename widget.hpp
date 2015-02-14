@@ -16,9 +16,11 @@ class Widget : public QWidget
     QLineEdit* index0_edit;
     QLineEdit* songwriter_edit;
     QLineEdit* title_edit;
+    QLineEdit* isrc_edit;
     QString track_string;
     QCheckBox* index0_check;
     QLabel* pregap_label;
+    QPalette warning;
 public:
     Track track;
     Widget(QWidget *parent = 0);
@@ -26,7 +28,7 @@ public slots:
     void UpdateFromVar();
     void UpdateToVar();
     void SelectName();
-    void IndexColor();
+    void InputColor();
 };
 
 #endif // WIDGET_HPP

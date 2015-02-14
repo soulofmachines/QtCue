@@ -28,6 +28,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
 
     track_layout = new QVBoxLayout;
 
+    catalog_edit = new QLineEdit ("");
     file_edit = new QLineEdit ("");
     file_combo = file_list();
     title_edit = new QLineEdit ("");
@@ -37,20 +38,28 @@ Window::Window(QWidget *parent) : QWidget(parent)
     genre_combo = genre_list();
 
     date_edit->setInputMask("9999");
+    catalog_edit->setInputMask("9999999999999");
 
+    catalog = "";
     file_name = "";
     file_mode = "WAVE";
     title = "";
     performer = "";
     songwriter = "";
-    date = "0000";
+    date = "";
     genre = "";
+
+    warning = palette();
+    warning.setColor(catalog_edit->foregroundRole(), Qt::red);
+    warning.setColor(date_edit->foregroundRole(), Qt::red);
 
     connect(save_button,SIGNAL(clicked()),SLOT(Save()));
     connect(load_button,SIGNAL(clicked()),SLOT(Load()));
     connect(add_button,SIGNAL(clicked()),SLOT(AddWidget()));
     connect(del_button,SIGNAL(clicked()),SLOT(DelWidget()));
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
+    connect(catalog_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
+    connect(date_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
 
     left_layout->addWidget(load_button,0,0,1,3);
     left_layout->addWidget(save_button,0,3,1,3);
@@ -64,11 +73,13 @@ Window::Window(QWidget *parent) : QWidget(parent)
     left_layout->addWidget(performer_edit,3,1,1,5);
     left_layout->addWidget(new QLabel("SONGWRITER"),4,0,1,1);
     left_layout->addWidget(songwriter_edit,4,1,1,5);
-    left_layout->addWidget(new QLabel("DATE"),5,0,1,1);
-    left_layout->addWidget(date_edit,5,1,1,1);
-    left_layout->addWidget(new QLabel("GENRE"),5,3,1,1);
-    left_layout->addWidget(genre_combo,5,4,1,2);
-    left_layout->addWidget(space_left,6,0,1,6);
+    left_layout->addWidget(new QLabel("CATALOG"),5,0,1,1);
+    left_layout->addWidget(catalog_edit,5,1,1,5);
+    left_layout->addWidget(new QLabel("DATE"),6,0,1,1);
+    left_layout->addWidget(date_edit,6,1,1,1);
+    left_layout->addWidget(new QLabel("GENRE"),6,3,1,1);
+    left_layout->addWidget(genre_combo,6,4,1,2);
+    left_layout->addWidget(space_left,7,0,1,6);
 
     adddel_layout->addWidget(add_button);
     adddel_layout->addWidget(del_button);
@@ -128,6 +139,7 @@ void Window::Load() {
     while (!stream.atEnd())
     {
         line = stream.readLine().trimmed();
+        ParseLast("^CATALOG *",catalog,line);
         ParseMiddle("^FILE *",file_name,line);
         ParseLast("^FILE *",file_mode,line);
         ParseLast("^TITLE *",title,line,1);
@@ -149,6 +161,7 @@ void Window::Load() {
                 ParseLast("^TITLE *", widget.back()->track.title, line, 1);
                 ParseLast("^PERFORMER *", widget.back()->track.performer, line, 1);
                 ParseLast("^SONGWRITER *", widget.back()->track.songwriter, line, 1);
+                ParseLast("^ISRC *", widget.back()->track.isrc, line, 1);
                 ParseLast("^PREGAP *", pregap, line, 1);
                 if (line.contains(QRegExp("^INDEX 00 *")))
                     widget.back()->track.index0_bool = ParseLast("^INDEX 00 *", widget.back()->track.index0, line, 2);
@@ -189,6 +202,8 @@ void Window::Save(){
     if (!file.isOpen())
         return;
     UpdateToVar();
+    if (!catalog.isEmpty())
+        file.write("CATALOG " + catalog.toUtf8() + "\r\n");
     if (!file_name.isEmpty())
         file.write("FILE \"" + file_name.toUtf8() + "\" " + file_mode.toUtf8() + "\r\n");
     if (!title.isEmpty())
@@ -197,7 +212,7 @@ void Window::Save(){
         file.write("PERFORMER \"" + performer.toUtf8() + "\"\r\n");
     if (!songwriter.isEmpty())
         file.write("SONGWRITER \"" + songwriter.toUtf8() + "\"\r\n");
-    if (date != "0000")
+    if (!date.isEmpty())
         file.write("REM DATE " + date.toUtf8() + "\r\n");
     if (genre != "")
         file.write("REM GENRE \"" + genre.toUtf8() + "\"\r\n");
@@ -216,6 +231,8 @@ void Window::Save(){
             file.write("    PERFORMER \"" + widget.at(x)->track.performer.toUtf8() + "\"\r\n");
         if (!widget.at(x)->track.songwriter.isEmpty())
             file.write("    SONGWRITER \"" + widget.at(x)->track.songwriter.toUtf8() + "\"\r\n");
+        if (!widget.at(x)->track.isrc.isEmpty())
+            file.write("    ISRC " + widget.at(x)->track.isrc.toUtf8() + "\r\n");
         if (widget.at(x)->track.index0_bool)
         file.write("    INDEX 00 " + widget.at(x)->track.index0.toUtf8() + "\r\n");
         file.write("    INDEX 01 " + widget.at(x)->track.index1.toUtf8() + "\r\n");
@@ -229,7 +246,14 @@ void Window::UpdateFromVar() {
     title_edit->setText(title);
     performer_edit->setText(performer);
     songwriter_edit->setText(songwriter);
+    catalog_edit->setText(catalog);
     genre_combo->setCurrentIndex(genre_combo->findText(genre,Qt::MatchFixedString));
+    if (genre_combo->currentText() != genre)
+    {
+        genre_combo->setItemText(0,genre);
+        genre_combo->setCurrentIndex(0);
+    } else
+        genre_combo->setItemText(0,"");
     date_edit->setText(date);
 }
 
@@ -239,6 +263,7 @@ void Window::UpdateToVar() {
     title = title_edit->text();
     performer = performer_edit->text();
     songwriter = songwriter_edit->text();
+    catalog = catalog_edit->text();
     date = date_edit->text();
     genre = genre_combo->currentText();
 }
@@ -248,12 +273,24 @@ void Window::SelectName() {
     UpdateFromVar();
 }
 
+void Window::InputColor() {
+    if (catalog_edit->hasAcceptableInput())
+        catalog_edit->setPalette(palette());
+    else
+        catalog_edit->setPalette(warning);
+    if (date_edit->hasAcceptableInput())
+        date_edit->setPalette(palette());
+    else
+        date_edit->setPalette(warning);
+}
+
 bool Window::ApplyPregap(QString pregap) {
     bool ok = true;
     if (!MMSSFF_valid(pregap))
         return false;
     if (widget.at(0)->track.index1 != "00:00:00")
         return false;
+    widget.at(0)->track.index0_bool = true;
     widget.at(0)->track.index0 = widget.at(0)->track.index1;
     widget.at(0)->track.index1 = pregap;
     for (int x = 1; x < widget.size(); ++x) {
