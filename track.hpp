@@ -7,7 +7,15 @@ class Track {
 public:
     int number;
     bool index0_bool;
-    QString mode, file_name, file_mode, title, performer, songwriter, isrc, index0, index1;
+    QString mode,
+            file_name,
+            file_mode,
+            title,
+            performer,
+            songwriter,
+            isrc,
+            index0,
+            index1;
     Track() {
         number = 0;
         mode = "AUDIO";

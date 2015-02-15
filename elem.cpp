@@ -181,6 +181,7 @@ QString MMSSFF_diff(QString line1, QString line2, bool &ok) {
         if (mm < 0)
             ok = false;
         else {
+            retstr.clear();
             if (mm < 10)
                 retstr = "0";
             retstr += QString::number(mm) + ":";

@@ -17,7 +17,7 @@ class Widget : public QWidget
     QLineEdit* songwriter_edit;
     QLineEdit* title_edit;
     QLineEdit* isrc_edit;
-    QString track_string;
+    //QString track_string;
     QCheckBox* index0_check;
     QLabel* pregap_label;
     QPalette warning;
@@ -25,6 +25,7 @@ public:
     Track track;
     Widget(QWidget *parent = 0);
 public slots:
+    QString TrackFromNum(int num);
     void UpdateFromVar();
     void UpdateToVar();
     void SelectName();

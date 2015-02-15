@@ -27,7 +27,6 @@ class Window : public QWidget
     QString date;
     QString genre;
     QPalette warning;
-
 public:
     Window(QWidget *parent = 0);
 public slots:

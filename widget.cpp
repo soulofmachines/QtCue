@@ -13,8 +13,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     performer_edit= new QLineEdit ("");
     songwriter_edit= new QLineEdit ("");
     title_edit= new QLineEdit ("");
-    track_string = "TRACK " + QString::number(track.number);
-    track_label = new QLabel(track_string);
+    track_label = new QLabel(TrackFromNum(track.number));
     track_combo = track_list();
     file_edit = new QLineEdit ("");
     QPushButton* file_button = new QPushButton ("...");
@@ -67,9 +66,15 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     setLayout(main_layout);
 }
 
+QString Widget::TrackFromNum(int num) {
+    if (num < 10)
+        return QString("TRACK 0" + QString::number(num));
+    else
+        return QString("TRACK " + QString::number(num));
+}
+
 void Widget::UpdateFromVar() {
-    track_string = "TRACK " + QString::number(track.number);
-    track_label->setText(track_string);
+    track_label->setText(TrackFromNum(track.number));
     track_combo->setCurrentIndex(track_combo->findText(track.mode,Qt::MatchFixedString));
     file_edit->setText(track.file_name);
     file_combo->setCurrentIndex(file_combo->findText(track.file_mode,Qt::MatchFixedString));
