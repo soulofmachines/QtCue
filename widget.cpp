@@ -10,6 +10,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     line->setFrameShape(QFrame::HLine);
 
     track = Track();
+    QPushButton* track_inc = new QPushButton ("+");
+    QPushButton* track_dec = new QPushButton ("-");
     performer_edit= new QLineEdit ("");
     songwriter_edit= new QLineEdit ("");
     title_edit= new QLineEdit ("");
@@ -38,6 +40,8 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     warning.setColor(index1_edit->foregroundRole(), Qt::red);
     warning.setColor(index0_check->foregroundRole(), Qt::red);
 
+    connect(track_inc,SIGNAL(clicked()),SLOT(TrackIncrease()));
+    connect(track_dec,SIGNAL(clicked()),SLOT(TrackDecrease()));
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
     connect(isrc_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
     connect(index0_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
@@ -45,7 +49,9 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     connect(index0_check,SIGNAL(toggled(bool)),SLOT(InputColor()));
 
     main_layout->addWidget(line, 0,0,1,6);
-    main_layout->addWidget(track_label,1,0,1,6);
+    main_layout->addWidget(track_label,1,0,1,4);
+    main_layout->addWidget(track_inc,1,4,1,1);
+    main_layout->addWidget(track_dec,1,5,1,1);
     main_layout->addWidget(new QLabel("FILE"),2,0,1,1);
     main_layout->addWidget(file_edit,2,1,1,3);
     main_layout->addWidget(file_button,2,4,1,1);
@@ -57,7 +63,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
     main_layout->addWidget(new QLabel("SONGWRITER"),5,0,1,1);
     main_layout->addWidget(songwriter_edit,5,1,1,2);
     main_layout->addWidget(new QLabel("ISRC"),6,0,1,1);
-    main_layout->addWidget(isrc_edit,6,1,1,5);
+    main_layout->addWidget(isrc_edit,6,1,1,2);
     main_layout->addWidget(index0_check,3,3,1,1);
     main_layout->addWidget(index0_edit,3,4,1,2);
     main_layout->addWidget(new QLabel("INDEX 01"),4,3,1,1);
@@ -127,4 +133,14 @@ void Widget::InputColor() {
             pregap_label->setPalette(warning);
     } else
         pregap_label->setText("");
+}
+
+void Widget::TrackIncrease() {
+    if (track.number < 99)
+        track_label->setText(TrackFromNum(++track.number));
+}
+
+void Widget::TrackDecrease() {
+    if (track.number > 1)
+        track_label->setText(TrackFromNum(--track.number));
 }

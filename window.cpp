@@ -36,7 +36,10 @@ Window::Window(QWidget *parent) : QWidget(parent)
     songwriter_edit = new QLineEdit ("");
     date_edit = new QLineEdit ("");
     genre_combo = genre_list();
+    discid_edit = new QLineEdit ("");
+    comment_edit = new QLineEdit ("");
 
+    discid_edit->setInputMask(">HHHHHHHH");
     date_edit->setInputMask("9999");
     catalog_edit->setInputMask("9999999999999");
 
@@ -48,8 +51,11 @@ Window::Window(QWidget *parent) : QWidget(parent)
     songwriter = "";
     date = "";
     genre = "";
+    comment = "";
+    discid = "";
 
     warning = palette();
+    warning.setColor(discid_edit->foregroundRole(), Qt::red);
     warning.setColor(catalog_edit->foregroundRole(), Qt::red);
     warning.setColor(date_edit->foregroundRole(), Qt::red);
 
@@ -58,6 +64,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
     connect(add_button,SIGNAL(clicked()),SLOT(AddWidget()));
     connect(del_button,SIGNAL(clicked()),SLOT(DelWidget()));
     connect(file_button,SIGNAL(clicked()),SLOT(SelectName()));
+    connect(discid_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
     connect(catalog_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
     connect(date_edit,SIGNAL(textChanged(QString)),SLOT(InputColor()));
 
@@ -73,12 +80,16 @@ Window::Window(QWidget *parent) : QWidget(parent)
     left_layout->addWidget(performer_edit,3,1,1,5);
     left_layout->addWidget(new QLabel("SONGWRITER"),4,0,1,1);
     left_layout->addWidget(songwriter_edit,4,1,1,5);
-    left_layout->addWidget(new QLabel("CATALOG"),5,0,1,1);
-    left_layout->addWidget(catalog_edit,5,1,1,5);
-    left_layout->addWidget(new QLabel("DATE"),6,0,1,1);
-    left_layout->addWidget(date_edit,6,1,1,1);
-    left_layout->addWidget(new QLabel("GENRE"),6,3,1,1);
-    left_layout->addWidget(genre_combo,6,4,1,2);
+    left_layout->addWidget(new QLabel("DISCID"),5,0,1,1);
+    left_layout->addWidget(discid_edit,5,1,1,1);
+    left_layout->addWidget(new QLabel("DATE"),5,2,1,1);
+    left_layout->addWidget(date_edit,5,3,1,1);
+    left_layout->addWidget(new QLabel("GENRE"),5,4,1,1);
+    left_layout->addWidget(genre_combo,5,5,1,1);
+    left_layout->addWidget(new QLabel("CATALOG"),6,0,1,1);
+    left_layout->addWidget(catalog_edit,6,1,1,2);
+    left_layout->addWidget(new QLabel("COMMENT"),6,3,1,1);
+    left_layout->addWidget(comment_edit,6,4,1,2);
     left_layout->addWidget(space_left,7,0,1,6);
 
     adddel_layout->addWidget(add_button);
@@ -96,19 +107,21 @@ Window::Window(QWidget *parent) : QWidget(parent)
 
     AddWidget();
     UpdateFromVar();
-    track_scroll->setMinimumWidth(QApplication::desktop()->screenGeometry().width()*0.25);
-    setFixedHeight(QApplication::desktop()->screenGeometry().height()*0.8);
+    setMinimumWidth(QApplication::desktop()->screenGeometry().width()*0.8);
+    setMinimumHeight(QApplication::desktop()->screenGeometry().height()*0.8);
     setLayout(window_layout);
 }
 
 void Window::AddWidget() {
-    widget.push_back(new Widget());
-    track_layout->addWidget(widget.back());
-    if (widget.size() == 1)
-        widget.back()->track.number = 1;
-    else
-        widget.back()->track.number = widget.at(widget.size()-2)->track.number+1;
-    widget.back()->UpdateFromVar();
+    if (widget.size() < 99) {
+        widget.push_back(new Widget());
+        track_layout->addWidget(widget.back());
+        if (widget.size() == 1)
+            widget.back()->track.number = 1;
+        else
+            widget.back()->track.number = widget.at(widget.size()-2)->track.number+1;
+        widget.back()->UpdateFromVar();
+    }
 }
 
 void Window::DelWidget() {
@@ -146,7 +159,9 @@ void Window::Load() {
         ParseLast("^PERFORMER *",performer,line,1);
         ParseLast("^SONGWRITER *",songwriter,line,1);
         ParseLast("^REM DATE *",date,line);
-        ParseLast("^REM GENRE *",genre,line);
+        ParseLast("^REM GENRE *",genre,line,2);
+        ParseLast("^REM DISCID *",discid,line);
+        ParseLast("^REM COMMENT *",comment,line,2);
         if (line.contains(QRegExp("^TRACK *")))
         {
             AddWidget();
@@ -217,6 +232,10 @@ void Window::Save(){
         file.write("REM DATE " + date.toUtf8() + "\r\n");
     if (genre != "")
         file.write("REM GENRE \"" + genre.toUtf8() + "\"\r\n");
+    if (genre != "")
+        file.write("REM DISCID " + discid.toUtf8() + "\r\n");
+    if (genre != "")
+        file.write("REM COMMENT \"" + comment.toUtf8() + "\"\r\n");
     for (int x = 0; x < widget.size(); ++x) {
         widget.at(x)->UpdateToVar();
         tracks.push_back(widget.at(x)->track);
@@ -260,6 +279,8 @@ void Window::UpdateFromVar() {
     } else
         genre_combo->setItemText(0,"");
     date_edit->setText(date);
+    discid_edit->setText(discid);
+    comment_edit->setText(comment);
 }
 
 void Window::UpdateToVar() {
@@ -271,6 +292,8 @@ void Window::UpdateToVar() {
     catalog = catalog_edit->text();
     date = date_edit->text();
     genre = genre_combo->currentText();
+    discid = discid_edit->text();
+    comment = comment_edit->text();
 }
 
 void Window::SelectName() {
@@ -287,6 +310,10 @@ void Window::InputColor() {
         date_edit->setPalette(palette());
     else
         date_edit->setPalette(warning);
+    if (discid_edit->hasAcceptableInput())
+        discid_edit->setPalette(palette());
+    else
+        discid_edit->setPalette(warning);
 }
 
 bool Window::ApplyPregap(QString pregap) {

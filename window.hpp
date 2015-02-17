@@ -19,6 +19,8 @@ class Window : public QWidget
     QLineEdit* songwriter_edit;
     QLineEdit* catalog_edit;
     QLineEdit* date_edit;
+    QLineEdit* discid_edit;
+    QLineEdit* comment_edit;
     QString catalog;
     QString file_name;
     QString file_mode;
@@ -27,6 +29,8 @@ class Window : public QWidget
     QString songwriter;
     QString date;
     QString genre;
+    QString discid;
+    QString comment;
     QPalette warning;
 public:
     Window(QWidget *parent = 0);
