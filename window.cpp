@@ -12,7 +12,7 @@ Window::Window(QWidget *parent) : QWidget(parent)
     QGridLayout* left_layout = new QGridLayout;
     QVBoxLayout* right_layout = new QVBoxLayout;
     QVBoxLayout* track_box = new QVBoxLayout;
-    QGridLayout* adddel_layout = new QGridLayout;
+    QHBoxLayout* adddel_layout = new QHBoxLayout;
     QScrollArea* track_scroll = new QScrollArea;
     QWidget* track_widget = new QWidget;
 
@@ -202,6 +202,7 @@ void Window::Save(){
     if (!file.isOpen())
         return;
     UpdateToVar();
+    tracks.clear();
     if (!catalog.isEmpty())
         file.write("CATALOG " + catalog.toUtf8() + "\r\n");
     if (!file_name.isEmpty())
@@ -218,24 +219,28 @@ void Window::Save(){
         file.write("REM GENRE \"" + genre.toUtf8() + "\"\r\n");
     for (int x = 0; x < widget.size(); ++x) {
         widget.at(x)->UpdateToVar();
-        if (widget.at(x)->track.number < 10) {
-            file.write("  TRACK 0" + QString::number(widget.at(x)->track.number).toUtf8() + " " + widget.at(x)->track.mode.toUtf8() + "\r\n");
+        tracks.push_back(widget.at(x)->track);
+    }
+    SortTracks();
+    for (int x = 0; x < tracks.size(); ++x) {
+        if (tracks.at(x).number < 10) {
+            file.write("  TRACK 0" + QString::number(tracks.at(x).number).toUtf8() + " " + tracks.at(x).mode.toUtf8() + "\r\n");
         } else {
-            file.write("  TRACK " + QString::number(widget.at(x)->track.number).toUtf8() + " " + widget.at(x)->track.mode.toUtf8() + "\r\n");
+            file.write("  TRACK " + QString::number(tracks.at(x).number).toUtf8() + " " + tracks.at(x).mode.toUtf8() + "\r\n");
         }
-        if (!widget.at(x)->track.file_name.isEmpty())
-            file.write("    FILE \"" + widget.at(x)->track.file_name.toUtf8() + "\" " + widget.at(x)->track.file_mode.toUtf8() + "\r\n");
-        if (!widget.at(x)->track.title.isEmpty())
-            file.write("    TITLE \"" + widget.at(x)->track.title.toUtf8() + "\"\r\n");
-        if (!widget.at(x)->track.performer.isEmpty())
-            file.write("    PERFORMER \"" + widget.at(x)->track.performer.toUtf8() + "\"\r\n");
-        if (!widget.at(x)->track.songwriter.isEmpty())
-            file.write("    SONGWRITER \"" + widget.at(x)->track.songwriter.toUtf8() + "\"\r\n");
-        if (!widget.at(x)->track.isrc.isEmpty())
-            file.write("    ISRC " + widget.at(x)->track.isrc.toUtf8() + "\r\n");
-        if (widget.at(x)->track.index0_bool)
-        file.write("    INDEX 00 " + widget.at(x)->track.index0.toUtf8() + "\r\n");
-        file.write("    INDEX 01 " + widget.at(x)->track.index1.toUtf8() + "\r\n");
+        if (!tracks.at(x).file_name.isEmpty())
+            file.write("    FILE \"" + tracks.at(x).file_name.toUtf8() + "\" " + tracks.at(x).file_mode.toUtf8() + "\r\n");
+        if (!tracks.at(x).title.isEmpty())
+            file.write("    TITLE \"" + tracks.at(x).title.toUtf8() + "\"\r\n");
+        if (!tracks.at(x).performer.isEmpty())
+            file.write("    PERFORMER \"" + tracks.at(x).performer.toUtf8() + "\"\r\n");
+        if (!tracks.at(x).songwriter.isEmpty())
+            file.write("    SONGWRITER \"" + tracks.at(x).songwriter.toUtf8() + "\"\r\n");
+        if (!tracks.at(x).isrc.isEmpty())
+            file.write("    ISRC " + tracks.at(x).isrc.toUtf8() + "\r\n");
+        if (tracks.at(x).index0_bool)
+            file.write("    INDEX 00 " + tracks.at(x).index0.toUtf8() + "\r\n");
+        file.write("    INDEX 01 " + tracks.at(x).index1.toUtf8() + "\r\n");
     }
     file.close();
 }
@@ -308,4 +313,13 @@ bool Window::ApplyPregap(QString pregap) {
     for (int x = 0; x < widget.size(); ++x)
         widget.at(x)->UpdateFromVar();
     return true;
+}
+
+void Window::SortTracks() {
+    for (int x = 0; x < tracks.size()-1; ++x) {
+        for (int y = 0; y < tracks.size()-x-1; ++y) {
+            if (tracks.at(y).number > tracks.at(y+1).number)
+                tracks.swap(y,y+1);
+        }
+    }
 }

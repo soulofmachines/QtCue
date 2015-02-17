@@ -12,6 +12,7 @@ class Window : public QWidget
     QComboBox* file_combo;
     QComboBox* genre_combo;
     QVector<Widget*> widget;
+    QList<Track> tracks;
     QLineEdit* file_edit;
     QLineEdit* performer_edit;
     QLineEdit* title_edit;
@@ -39,6 +40,7 @@ public slots:
     void SelectName();
     void InputColor();
     bool ApplyPregap(QString pregap);
+    void SortTracks();
 };
 
 #endif // WINDOW_HPP
