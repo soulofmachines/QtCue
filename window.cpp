@@ -238,28 +238,28 @@ void Window::Save(){
         file.write("REM COMMENT \"" + comment.toUtf8() + "\"\r\n");
     for (int x = 0; x < widget.size(); ++x) {
         widget.at(x)->UpdateToVar();
-        tracks.push_back(widget.at(x)->track);
+        tracks.push_back(&widget.at(x)->track);
     }
     SortTracks();
     for (int x = 0; x < tracks.size(); ++x) {
-        if (tracks.at(x).number < 10) {
-            file.write("  TRACK 0" + QString::number(tracks.at(x).number).toUtf8() + " " + tracks.at(x).mode.toUtf8() + "\r\n");
+        if (tracks.at(x)->number < 10) {
+            file.write("  TRACK 0" + QString::number(tracks.at(x)->number).toUtf8() + " " + tracks.at(x)->mode.toUtf8() + "\r\n");
         } else {
-            file.write("  TRACK " + QString::number(tracks.at(x).number).toUtf8() + " " + tracks.at(x).mode.toUtf8() + "\r\n");
+            file.write("  TRACK " + QString::number(tracks.at(x)->number).toUtf8() + " " + tracks.at(x)->mode.toUtf8() + "\r\n");
         }
-        if (!tracks.at(x).file_name.isEmpty())
-            file.write("    FILE \"" + tracks.at(x).file_name.toUtf8() + "\" " + tracks.at(x).file_mode.toUtf8() + "\r\n");
-        if (!tracks.at(x).title.isEmpty())
-            file.write("    TITLE \"" + tracks.at(x).title.toUtf8() + "\"\r\n");
-        if (!tracks.at(x).performer.isEmpty())
-            file.write("    PERFORMER \"" + tracks.at(x).performer.toUtf8() + "\"\r\n");
-        if (!tracks.at(x).songwriter.isEmpty())
-            file.write("    SONGWRITER \"" + tracks.at(x).songwriter.toUtf8() + "\"\r\n");
-        if (!tracks.at(x).isrc.isEmpty())
-            file.write("    ISRC " + tracks.at(x).isrc.toUtf8() + "\r\n");
-        if (tracks.at(x).index0_bool)
-            file.write("    INDEX 00 " + tracks.at(x).index0.toUtf8() + "\r\n");
-        file.write("    INDEX 01 " + tracks.at(x).index1.toUtf8() + "\r\n");
+        if (!tracks.at(x)->file_name.isEmpty())
+            file.write("    FILE \"" + tracks.at(x)->file_name.toUtf8() + "\" " + tracks.at(x)->file_mode.toUtf8() + "\r\n");
+        if (!tracks.at(x)->title.isEmpty())
+            file.write("    TITLE \"" + tracks.at(x)->title.toUtf8() + "\"\r\n");
+        if (!tracks.at(x)->performer.isEmpty())
+            file.write("    PERFORMER \"" + tracks.at(x)->performer.toUtf8() + "\"\r\n");
+        if (!tracks.at(x)->songwriter.isEmpty())
+            file.write("    SONGWRITER \"" + tracks.at(x)->songwriter.toUtf8() + "\"\r\n");
+        if (!tracks.at(x)->isrc.isEmpty())
+            file.write("    ISRC " + tracks.at(x)->isrc.toUtf8() + "\r\n");
+        if (tracks.at(x)->index0_bool)
+            file.write("    INDEX 00 " + tracks.at(x)->index0.toUtf8() + "\r\n");
+        file.write("    INDEX 01 " + tracks.at(x)->index1.toUtf8() + "\r\n");
     }
     file.close();
 }
@@ -345,7 +345,7 @@ bool Window::ApplyPregap(QString pregap) {
 void Window::SortTracks() {
     for (int x = 0; x < tracks.size()-1; ++x) {
         for (int y = 0; y < tracks.size()-x-1; ++y) {
-            if (tracks.at(y).number > tracks.at(y+1).number)
+            if (tracks.at(y)->number > tracks.at(y+1)->number)
                 tracks.swap(y,y+1);
         }
     }
